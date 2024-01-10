@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Draggable Square Map</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <style>
+      body, html {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+      }
+  
+      #map {
+          width: 100vw;  /* 100% of the viewport width */
+          height: 100vh; /* 100% of the viewport height */
+      }
+  
+      .draggable-square {
+          width: 18km; 
+          height: 18km;
+          position: absolute;
+          background-color: rgba(0, 255, 0, 0.5); /* Semi-translucent green */
+          pointer-events: none; /* Allows click events to pass through to the map */
+      }
+  </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+      var map = L.map("map").setView([51.505, -0.09], 13); // Set initial position and zoom level
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+      var centerLat = 51.505; // Center latitude
+      var centerLng = -0.09; // Center longitude
+
+      var kmInDegreesLat = 18 / 111; // Convert 18 km to degrees for latitude
+      var kmInDegreesLng = 18 / (111 * Math.cos((centerLat * Math.PI) / 180)); // Convert 18 km to degrees for longitude
+
+      var squareBounds = [
+        [centerLat - kmInDegreesLat / 2, centerLng - kmInDegreesLng / 2],
+        [centerLat + kmInDegreesLat / 2, centerLng + kmInDegreesLng / 2],
+      ];
+
+      var square = L.rectangle(squareBounds, {
+        color: "#ff7800",
+        weight: 1,
+      }).addTo(map);
+
+      map.on("mousemove", function (e) {
+        var kmInDegreesLat = 18 / 111; // 18 km in latitude degrees
+        var kmInDegreesLng =
+          18 / (111 * Math.cos((e.latlng.lat * Math.PI) / 180)); // 18 km in longitude degrees, adjusted for current latitude
+
+        var latLngBounds = [
+          [
+            e.latlng.lat - kmInDegreesLat / 2,
+            e.latlng.lng - kmInDegreesLng / 2,
+          ],
+          [
+            e.latlng.lat + kmInDegreesLat / 2,
+            e.latlng.lng + kmInDegreesLng / 2,
+          ],
+        ];
+        square.setBounds(latLngBounds);
+      });
+    </script>
+  </body>
+</html>
